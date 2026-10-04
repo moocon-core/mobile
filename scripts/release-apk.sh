@@ -31,6 +31,9 @@ APK="dist/moocon-$VERSION.apk"
 # The release key lives outside the repo; without it the APK would be debug-signed and un-updatable.
 grep -q '^MOOCON_RELEASE_STORE_FILE=' "$HOME/.gradle/gradle.properties" 2>/dev/null ||
   die "Release key not configured: add MOOCON_RELEASE_* to ~/.gradle/gradle.properties"
+# The RPC key is baked into the bundle at build time; without it the app would ship the rate-limited public RPC.
+RPC_URL="${EXPO_PUBLIC_SOLANA_RPC_URL:-$(grep -E '^EXPO_PUBLIC_SOLANA_RPC_URL=' .env.local 2>/dev/null | cut -d= -f2- || true)}"
+[ -n "$RPC_URL" ] || die "Set EXPO_PUBLIC_SOLANA_RPC_URL in .env.local (keyed mainnet RPC)"
 grep -q '^EXPO_PUBLIC_MOCK_WALLET=' .env.local 2>/dev/null &&
   echo "• Note: EXPO_PUBLIC_MOCK_WALLET is set but is ignored in release builds"
 
@@ -60,6 +63,9 @@ cp android/app/build/outputs/apk/release/app-release.apk "$APK"
 CERT=$("$APKSIGNER" verify --print-certs "$APK" | grep -m1 'certificate DN' || true)
 [ -n "$CERT" ] || die "APK is not signed"
 echo "$CERT" | grep -qi 'Android Debug' && die "APK is debug-signed; check MOOCON_RELEASE_* properties"
+# Confirm the configured RPC really is in the bundle.
+unzip -p "$APK" assets/index.android.bundle | strings | grep -qF "$RPC_URL" ||
+  die "Bundle doesn't contain EXPO_PUBLIC_SOLANA_RPC_URL; check .env.local"
 SHA=$(shasum -a 256 "$APK" | cut -d' ' -f1)
 echo "• $APK ($(du -h "$APK" | cut -f1)) sha256 $SHA"
 

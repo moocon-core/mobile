@@ -14,7 +14,7 @@ bun run dev        # later sessions: start Metro, reopen the installed app
 
 Expo Go can't run this app (it uses native modules such as Mobile Wallet Adapter); use the dev client above. The device needs an MWA wallet (Phantom, Solflare, Seed Vault…).
 
-Config: copy `.env.example` to `.env.local` to override `EXPO_PUBLIC_SOLANA_RPC_URL` / `EXPO_PUBLIC_API_URL`. For UI previews, `EXPO_PUBLIC_MOCK_WALLET=<address>` reads the app as that wallet in dev builds (signing is disabled while it's set).
+Config: copy `.env.example` to `.env.local` and set `EXPO_PUBLIC_SOLANA_RPC_URL` to the keyed mainnet RPC (required for releases; dev falls back to the public endpoint). `.env.local` is gitignored, so keys never land in git, but they are baked into the APK. For UI previews, `EXPO_PUBLIC_MOCK_WALLET=<address>` reads the app as that wallet in dev builds (signing is disabled while it's set).
 
 ## Release (signed APK → GitHub Release)
 

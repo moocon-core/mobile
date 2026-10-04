@@ -1,0 +1,16 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@solana/web3.js": ["./node_modules/@solana/web3.js"],
+      "@solana/spl-token": ["./node_modules/@solana/spl-token"],
+      "@coral-xyz/anchor": ["./node_modules/@coral-xyz/anchor"],
+      "buffer": ["./node_modules/buffer"],
+      "ts-sdk/*": ["./vendor/ts-sdk/*"],
+      "@moocon/shared": ["./vendor/shared/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}

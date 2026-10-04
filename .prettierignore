@@ -1,0 +1,13 @@
+# Add files here to ignore them from prettier formatting
+/.expo
+/android
+/coverage
+/dist
+/ios
+/tmp
+pnpm-lock.yaml
+.agents
+agent
+
+# copied from the monorepo; keep its formatting so syncs stay clean diffs
+vendor/

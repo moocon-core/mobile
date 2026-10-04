@@ -64,9 +64,11 @@ CERT=$("$APKSIGNER" verify --print-certs "$APK" | grep -m1 'certificate DN' || t
 [ -n "$CERT" ] || die "APK is not signed"
 echo "$CERT" | grep -qi 'Android Debug' && die "APK is debug-signed; check MOOCON_RELEASE_* properties"
 # Confirm the configured RPC really is in the bundle.
-# (not grep -q: exiting early SIGPIPEs strings and pipefail reports a miss)
-unzip -p "$APK" assets/index.android.bundle | strings | grep -F "$RPC_URL" >/dev/null ||
-  die "Bundle doesn't contain EXPO_PUBLIC_SOLANA_RPC_URL; check .env.local"
+# Byte search on an extracted copy: macOS `strings` skips data when reading a pipe.
+BUNDLE=$(mktemp)
+unzip -p "$APK" assets/index.android.bundle >"$BUNDLE"
+LC_ALL=C grep -aqF "$RPC_URL" "$BUNDLE" || { rm -f "$BUNDLE"; die "Bundle doesn't contain EXPO_PUBLIC_SOLANA_RPC_URL; check .env.local"; }
+rm -f "$BUNDLE"
 SHA=$(shasum -a 256 "$APK" | cut -d' ' -f1)
 echo "• $APK ($(du -h "$APK" | cut -f1)) sha256 $SHA"
 
